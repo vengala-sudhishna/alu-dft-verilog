@@ -1,26 +1,37 @@
 module scan_alu (
-    input [3:0] A, B,
-    input [2:0] opcode,
-    input SE, SI,
-    output [3:0] result,
-    output zero_flag,
-    output SO
+  input clk,
+  input reset,              // NEW: added reset for proper initialization
+  input scan_in,
+  input scan_enable,
+  input [3:0] A, B,
+  input [2:0] opcode,
+  output [3:0] result,
+  output zero_flag,
+  output scan_out
 );
-    reg [3:0] scan_reg;
+  reg [7:0] scan_chain;
 
-    always @ (posedge SE) begin
-        scan_reg <= {scan_reg[2:0], SI};
-    end
+  // Scan chain shift register with reset
+  always @(posedge clk or posedge reset) begin
+    if (reset)
+      scan_chain <= 8'b0;
+    else if (scan_enable)
+      scan_chain <= {scan_chain[6:0], scan_in};
+  end
 
-    assign SO = scan_reg[3];
-    wire [3:0] A_int = SE ? scan_reg : A;
-    wire [3:0] B_int = SE ? 4'b0000 : B;
+  // Extract A and B from scan chain during scan mode
+  wire [3:0] scan_A = scan_chain[7:4];
+  wire [3:0] scan_B = scan_chain[3:0];
 
-    alu uut (
-        .A(A_int),
-        .B(B_int),
-        .opcode(opcode),
-        .result(result),
-        .zero_flag(zero_flag)
-    );
+  // ALU instance
+  alu u1 (
+    .A(scan_enable ? scan_A : A),
+    .B(scan_enable ? scan_B : B),
+    .opcode(opcode),
+    .result(result),
+    .zero_flag(zero_flag)
+  );
+
+  assign scan_out = scan_chain[7];  // MSB of scan chain
+
 endmodule
