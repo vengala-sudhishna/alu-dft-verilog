@@ -21,6 +21,10 @@ This project implements a 4-bit ALU in Verilog with integrated scan chain logic 
 3. Paste the Verilog code into code windows
 4. Click Run and then view waveforms in EPWave
 
+Simulation output: 
+ <img width="1799" height="772" alt="Screenshot 2025-07-24 183025" src="https://github.com/user-attachments/assets/89114667-02df-4de8-bf37-b528aaec85a7" />
+
+
 ✨ Author
 Sudhishna  
 B.Tech Final Year – ECE  
